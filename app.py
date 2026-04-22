@@ -1,41 +1,29 @@
+
 import streamlit as st
-import openai
+import google.generativeai as genai
 
-# Sayfa Ayarları
-st.set_page_config(page_title="Evrensel Titreşim", page_icon="🔮")
-
-# Şık Tasarım
-st.markdown("""
-    <style>
-    .main { background-color: #0e1117; color: #f0e68c; }
-    .stButton>button { background-color: #ffd700; color: black; border-radius: 10px; width: 100%; }
-    </style>
-    """, unsafe_allow_html=True)
-
+# Sayfa başlığı
 st.title("🔮 Hoş geldin, Mustafa")
 st.subheader("Evren bugün senin için ne fısıldıyor?")
 
-# OpenAI Bağlantısı (Ayarlardan gizli olarak bağlayacağız)
-if "OPENAI_API_KEY" in st.secrets:
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
+# KİLİT BURADA: Kasadaki (Secrets) anahtarı kontrol et
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    model = genai.GenerativeModel('gemini-pro')
 else:
     st.warning("Lütfen API anahtarını bağla.")
+    st.stop()
 
-mood = st.text_area("Kalbindekileri dök, yıldızlar yol göstersin...", placeholder="Şu an ne hissediyorsun?")
+# Kullanıcı girişi
+user_input = st.text_area("Kalbindekileri dök...")
 
 if st.button("Mistik Mesajı Al"):
-    if mood:
-        with st.spinner('Yıldızlar hizalanıyor...'):
-            try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[
-                        {"role": "system", "content": "Sen Mistik Gezgin'sin. Bilge ve samimisin. Kullanıcıyı Mustafa (1987 Maraş doğumlu Akrep) olarak tanı ve mistik yorumlar yap."},
-                        {"role": "user", "content": mood}
-                    ]
-                )
-                st.success(response.choices[0].message.content)
-            except Exception as e:
-                st.error("Bir hata oluştu, muhtemelen API anahtarı henüz eklenmedi.")
+    if user_input:
+        try:
+            # Fal yorumu
+            response = model.generate_content(f"Sen mistik bir falcısın. Mustafa'ya şu konuda bilgece bir cevap ver: {user_input}")
+            st.success(response.text)
+        except Exception as e:
+            st.error(f"Bir hata oluştu: {e}")
     else:
-        st.warning("Henüz bir şey yazmadın ruh kardeşim.")
+        st.warning("Lütfen bir şeyler yaz.")
