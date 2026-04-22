@@ -2,32 +2,32 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Sayfa yapılandırması
+# Sayfa Ayarları
 st.set_page_config(page_title="Mistik Mesaj", page_icon="🔮")
+st.title("🔮 Hoş geldin, Mustafa")
 
-# Kasa (Secrets) kontrolü
+# Anahtar Kontrolü
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    # MODELİ BURADA TANIMLIYORUZ - Kesinlikle gemini-1.5-flash
-    model_name = 'gemini-1.5-flash'
-    model = genai.GenerativeModel(model_name)
+    # BURADA GÜNCELLEME YAPTIK:
+    model = genai.GenerativeModel(model_name='models/gemini-1.5-flash')
 else:
-    st.error("HATA: Secrets kısmına GEMINI_API_KEY eklenmemiş!")
+    st.error("API Anahtarı eksik!")
     st.stop()
 
-st.title("🔮 Hoş geldin, Mustafa")
-st.info(f"Sistem şu an '{model_name}' modelini kullanıyor.") # Model adını ekrana yazdırdık
+st.info("Sistem güncellendi. Hadi Mustafa, şimdi dene!")
 
-user_input = st.text_area("Kalbindekileri dök...", placeholder="Mesajını buraya yaz...")
+user_input = st.text_area("Kalbindekileri dök...")
 
 if st.button("Mistik Mesajı Al"):
     if user_input:
         try:
-            with st.spinner('Yıldızlarla konuşuyorum...'):
-                response = model.generate_content(f"Sen bir falcısın. Mustafa diyor ki: {user_input}. Ona moral ver.")
+            with st.spinner('Yıldızlar cevap veriyor...'):
+                # En garanti metot
+                response = model.generate_content(user_input)
                 st.success(response.text)
                 st.balloons()
         except Exception as e:
-            st.error(f"Bir hata oluştu. Hata mesajı: {e}")
+            st.error(f"Hata: {e}")
     else:
         st.warning("Lütfen bir şeyler yaz.")
